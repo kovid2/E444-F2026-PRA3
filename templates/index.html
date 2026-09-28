@@ -6,6 +6,9 @@
 {% block page_content %}
 <div class="page-header">
   <h1>Hello, {% if name %}{{ name }}{% else %}Stranger{% endif %}!</h1>
+  {% if name and email %}
+  <p>{{ email }}</p>
+  {% endif %}
 </div>
 {{ render_form(form) }}
 {% endblock %}
