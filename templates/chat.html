@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Chatbot - PRA3{% endblock %}
+
+{% block page_content %}
+<div class="container" style="max-width: 650px;">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Welcome, {{ name }}!</h2>
+        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="card-title mb-0">PRA3 Memory Chatbot</h5>
+        </div>
+        <div class="card-body" id="chat-box" style="height: 320px; overflow-y: auto; background-color: #f8f9fa;">
+            <div class="mb-3 text-start">
+                <span class="badge bg-secondary">Bot</span>
+                <div class="p-2 bg-white rounded border d-inline-block mt-1">
+                    Hello {{ name }}! How can I help you today?
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="input-group">
+                <input type="text" id="user-input" class="form-control" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function sendMessage() {
+    const inputField = document.getElementById('user-input');
+    const message = inputField.value.trim();
+    if (!message) return;
+
+    const chatBox = document.getElementById('chat-box');
+    
+    // Append User Message
+    chatBox.innerHTML += `
+        <div class="mb-3 text-end">
+            <span class="badge bg-primary">You</span>
+            <div class="p-2 bg-primary text-white rounded d-inline-block mt-1 text-start">
+                ${message}
+            </div>
+        </div>`;
+        
+    inputField.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    try {
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: message })
+        });
+        const data = await response.json();
+        
+        // Append Bot Reply
+        chatBox.innerHTML += `
+            <div class="mb-3 text-start">
+                <span class="badge bg-secondary">Bot</span>
+                <div class="p-2 bg-white rounded border d-inline-block mt-1">
+                    ${data.reply}
+                </div>
+            </div>`;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    } catch (err) {
+        chatBox.innerHTML += `
+            <div class="mb-3 text-start">
+                <span class="badge bg-danger">Error</span>
+                <div class="p-2 bg-white text-danger rounded border d-inline-block mt-1">
+                    Failed to reach chatbot server.
+                </div>
+            </div>`;
+    }
+}
+</script>
+{% endblock %}
