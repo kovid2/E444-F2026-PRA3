@@ -11,7 +11,7 @@ bootstrap = Bootstrap5(app)
 
 class NameForm(FlaskForm):
     name = StringField('What is your name?', validators=[DataRequired()])
-    email = StringField('What is your UofT Email address?', validators=[DataRequired()])
+    email = StringField('What is your UofT Email address?', validators=[DataRequired()], render_kw={'type' : 'email'})
     submit = SubmitField('Submit')
 
 
@@ -30,7 +30,7 @@ def index():
     form = NameForm()
     if form.validate_on_submit():
         email = form.email.data or ''
-        if 'utoronto' not in email.lower():
+        if '@utoronto' not in email.lower():
             flash('Please fill in a UofT email address.')
         else:
             # Store name and email directly in Flask session
